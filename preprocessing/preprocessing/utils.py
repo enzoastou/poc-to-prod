@@ -74,7 +74,7 @@ class BaseTextCategorizationDataset:
         returns number of test samples
         (test set size)
         """
-        return len(self)-self._get_num_train_samples()
+        return self._get_num_samples()-self._get_num_train_samples()
 
     def _get_num_train_batches(self):
         """
@@ -108,9 +108,8 @@ class BaseTextCategorizationDataset:
         (dictionary index: label)
         """
         index_to_label_map={}
-        for i in range(self.get_num_labels):
-            index_to_label_map[i]=[]
-            index_to_label_map[i].append(self._get_label_list()[i])
+        for i in range(self.get_num_labels()):
+            index_to_label_map[i]=self._get_label_list()[i]
         return index_to_label_map
 
 
@@ -119,7 +118,7 @@ class BaseTextCategorizationDataset:
         from index -> label map, returns label -> index map
         (reverse the previous dictionary)
         """
-        index_to_label_map={}
+        index_to_label_map=self.get_index_to_label_map()
         return {val: key for (key, val) in index_to_label_map.items()}
 
 
@@ -221,7 +220,8 @@ class LocalTextCategorizationDataset(BaseTextCategorizationDataset):
         # use pandas.DataFrame.pipe to chain preprocessing steps
         # https://pandas.pydata.org/docs/reference/api/pandas.DataFrame.pipe.html
         # return pre-processed dataset
-        # return 
+        filteredDataset = dataset.pipe(filter_tag_position(0)).pipe(filter_tags_with_less_than_x_samples(min_samples_per_label))
+        return filteredDataset
 
     # we need to implement the methods that are not implemented in the super class BaseTextCategorizationDataset
 
@@ -259,5 +259,3 @@ class LocalTextCategorizationDataset(BaseTextCategorizationDataset):
         # When we reach the max num batches, we start anew
         self.test_batch_index = (self.test_batch_index + 1) % self._get_num_test_batches()
         return next_x, next_y
-               
-)
