@@ -1,0 +1,6 @@
+batch_size: 32
+epochs: 5
+dense_dim: 64
+min_samples_per_label: 10
+verbose: 1
+train_ratio: 0.8
